@@ -86,16 +86,26 @@ export class UsersController {
       throw new HttpException('ID is not UUID', HttpStatus.BAD_REQUEST);
     }
 
-    let user: User;
+    if (
+      updatePasswordDto.oldPassword === undefined ||
+      updatePasswordDto.newPassword === undefined
+    ) {
+      throw new HttpException(
+        'You need to fill both login and password',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    let user = this.usersService.findOne(id);
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+
     try {
       user = this.usersService.update(id, updatePasswordDto);
     } catch {
       throw new HttpException('Old password is wrong', HttpStatus.FORBIDDEN);
     }
 
-    if (!user) {
-      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
-    }
     return {
       id: user.id,
       login: user.login,
