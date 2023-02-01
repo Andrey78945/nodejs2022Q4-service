@@ -7,4 +7,11 @@ export interface User {
   updatedAt: number; // timestamp of last update
 }
 
-export type UserDto = Pick<User, 'login' | 'password'>;
+export type CreateUserDto = Pick<User, 'login' | 'password'>;
+
+export interface UpdatePasswordDto {
+  oldPassword: string;
+  newPassword: string;
+}
+
+export type UserToFront = Omit<User, 'password'>;
