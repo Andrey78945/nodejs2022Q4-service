@@ -82,7 +82,7 @@ export class ArtistsController {
     try {
       artist = this.artistsService.update(id, updateArtistDto);
     } catch {
-      throw new HttpException('Old password is wrong', HttpStatus.FORBIDDEN);
+      throw new HttpException('Something is wrong', HttpStatus.FORBIDDEN);
     }
 
     return artist;
