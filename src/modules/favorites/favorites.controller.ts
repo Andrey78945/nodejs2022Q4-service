@@ -31,6 +31,7 @@ export class FavoritesController {
   @Get()
   @HttpCode(200)
   async findAll(): Promise<FavoritesResponce> {
+    console.debug('findAll');
     const favs: Favorites = this.favoritesService.findAll();
     const artists: Artist[] = favs.artists.map(
       (id: string): Artist => this.artistsService.findOne(id),
@@ -48,38 +49,58 @@ export class FavoritesController {
     };
   }
 
-  // @Post(':id')
-  // @HttpCode(201)
-  // async create(@Body() createTrackDto: CreateTrackDto): Promise<Track> {
-  //   //  console.log(createAlbumDto.name, 'type', typeof createAlbumDto.name);
-  //   if (
-  //     createTrackDto.name === undefined ||
-  //     createTrackDto.name === null ||
-  //     createTrackDto.name?.length === 0 ||
-  //     createTrackDto.duration === undefined ||
-  //     createTrackDto.duration < 0 ||
-  //     createTrackDto.artistId === undefined ||
-  //     createTrackDto.albumId === undefined
-  //   ) {
-  //     throw new HttpException(
-  //       'You need to fill all parametres',
-  //       HttpStatus.BAD_REQUEST,
-  //     );
-  //   }
-  //   const album = this.tracksService.create(createTrackDto);
-  //   return album;
-  // }
+  @Post('*:id')
+  @HttpCode(201)
+  async create(@Param() params): Promise<void> {
+    console.debug(params, 'params');
+    const [itemType, itemId] = params[0].split('/');
+    console.debug(itemType, 'itemType');
+    console.debug(itemId, 'itemId');
+    if (!isUUID(itemId)) {
+      throw new HttpException('ID is not UUID', HttpStatus.BAD_REQUEST);
+    }
+    if (itemType === 'track') {
+      const track = this.tracksService.findOne(itemId);
+      if (!track) {
+        throw new HttpException(
+          'Track does not exist',
+          HttpStatus.UNPROCESSABLE_ENTITY,
+        );
+      }
+    }
+    if (itemType === 'artist') {
+      const artist = this.artistsService.findOne(itemId);
+      if (!artist) {
+        throw new HttpException(
+          'Artist does not exist',
+          HttpStatus.UNPROCESSABLE_ENTITY,
+        );
+      }
+    }
+    if (itemType === 'album') {
+      const album = this.albumsService.findOne(itemId);
+      if (!album) {
+        throw new HttpException(
+          'Album does not exist',
+          HttpStatus.UNPROCESSABLE_ENTITY,
+        );
+      }
+    }
+    this.favoritesService.add(itemId, itemType);
+  }
 
-  // @Delete(':id')
-  // @HttpCode(204)
-  // async remove(@Param('id') id: string): Promise<Track> {
-  //   if (!isUUID(id)) {
-  //     throw new HttpException('ID is not UUID', HttpStatus.BAD_REQUEST);
-  //   }
-  //   const track = this.tracksService.remove(id);
-  //   if (!track) {
-  //     throw new HttpException('User not found', HttpStatus.NOT_FOUND);
-  //   }
-  //   return track;
-  // }
+  @Delete(':id')
+  @HttpCode(204)
+  async remove(@Param() params): Promise<void> {
+    const [itemType, itemId] = params[0].split('/');
+    if (!isUUID(itemId)) {
+      throw new HttpException('ID is not UUID', HttpStatus.BAD_REQUEST);
+    }
+
+    if (!this.favoritesService.isFavorite(itemId, itemType)) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+
+    this.favoritesService.remove(itemId, itemType);
+  }
 }
