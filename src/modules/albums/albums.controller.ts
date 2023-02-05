@@ -13,10 +13,16 @@ import {
 import { Album, CreateAlbumDto } from './models/albums.entity';
 import { AlbumsService } from './albums.service';
 import { isUUID } from 'class-validator';
+import { ArtistsService } from '../artists/artists.service';
+import { TracksService } from '../tracks/tracks.service';
 
 @Controller('album')
 export class AlbumsController {
-  constructor(private albumsService: AlbumsService) {}
+  constructor(
+    private albumsService: AlbumsService,
+    private artistsServise: ArtistsService,
+    private trackService: TracksService,
+  ) {}
 
   @Get()
   @HttpCode(200)
@@ -72,10 +78,14 @@ export class AlbumsController {
       throw new HttpException('Album not found', HttpStatus.NOT_FOUND);
     }
 
+    const user = this.artistsServise.findOne(updateAlbumdDto.artistId);
+    if (!user)
+      throw new HttpException('Request is wrong', HttpStatus.BAD_REQUEST);
+
     try {
       album = this.albumsService.update(id, updateAlbumdDto);
     } catch {
-      throw new HttpException('Old password is wrong', HttpStatus.FORBIDDEN);
+      throw new HttpException('Request is wrong', HttpStatus.BAD_REQUEST);
     }
 
     return album;
