@@ -13,10 +13,14 @@ import {
 import { Track, CreateTrackDto } from './models/tracks.entity';
 import { TracksService } from './tracks.service';
 import { isUUID } from 'class-validator';
+import { ArtistsService } from '../artists/artists.service';
 
 @Controller('track')
 export class TracksController {
-  constructor(private tracksService: TracksService) {}
+  constructor(
+    private tracksService: TracksService,
+    private artistsService: ArtistsService,
+  ) {}
 
   @Get()
   @HttpCode(200)
@@ -40,7 +44,6 @@ export class TracksController {
   @Post()
   @HttpCode(201)
   async create(@Body() createTrackDto: CreateTrackDto): Promise<Track> {
-    //  console.log(createAlbumDto.name, 'type', typeof createAlbumDto.name);
     if (
       createTrackDto.name === undefined ||
       createTrackDto.name === null ||
@@ -71,8 +74,18 @@ export class TracksController {
 
     let track = this.tracksService.findOne(id);
     if (!track) {
-      throw new HttpException('Album not found', HttpStatus.NOT_FOUND);
+      throw new HttpException('Track not found', HttpStatus.NOT_FOUND);
     }
+    console.log(updateTrackDto, 'updateTrackDto');
+    if (updateTrackDto.artistId) {
+      const artist = this.artistsService.findOne(updateTrackDto.artistId);
+      if (!artist)
+        throw new HttpException('Request is wrong', HttpStatus.BAD_REQUEST);
+    }
+
+    // const albom = this.albumsService.findOne(updateTrackDto.albumId);
+    // if (!albom)
+    //   throw new HttpException('Request is wrong', HttpStatus.BAD_REQUEST);
 
     try {
       track = this.tracksService.update(id, updateTrackDto);
