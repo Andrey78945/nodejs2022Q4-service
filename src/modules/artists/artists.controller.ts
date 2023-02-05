@@ -13,10 +13,14 @@ import {
 import { Artist, CreateArtistDto } from './models/artists.entity';
 import { ArtistsService } from './artists.service';
 import { isUUID } from 'class-validator';
+import { TracksService } from '../tracks/tracks.service';
 
 @Controller('artist')
 export class ArtistsController {
-  constructor(private artistsService: ArtistsService) {}
+  constructor(
+    private artistsService: ArtistsService,
+    private trackService: TracksService,
+  ) {}
 
   @Get()
   @HttpCode(200)
@@ -98,6 +102,17 @@ export class ArtistsController {
     if (!artist) {
       throw new HttpException('Artist not found', HttpStatus.NOT_FOUND);
     }
+    const tracks = this.trackService.findAll();
+    tracks.map((track) => {
+      if (track.artistId === id) {
+        this.trackService.update(track.id, {
+          artistId: null,
+          name: track.name,
+          albumId: track.albumId,
+          duration: track.duration,
+        });
+      }
+    });
     return artist;
   }
 }
