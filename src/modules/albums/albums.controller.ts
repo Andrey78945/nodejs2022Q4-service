@@ -98,9 +98,21 @@ export class AlbumsController {
       throw new HttpException('ID is not UUID', HttpStatus.BAD_REQUEST);
     }
     const album = this.albumsService.remove(id);
+
     if (!album) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
+    const tracks = this.trackService.findAll();
+    tracks.map((track) => {
+      if (track.albumId === id) {
+        this.trackService.update(track.id, {
+          albumId: null,
+          name: track.name,
+          artistId: track.artistId,
+          duration: track.duration,
+        });
+      }
+    });
     return album;
   }
 }
