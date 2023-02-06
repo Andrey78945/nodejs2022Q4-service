@@ -31,7 +31,6 @@ export class FavoritesController {
   @Get()
   @HttpCode(200)
   async findAll(): Promise<FavoritesResponce> {
-    console.debug('findAll');
     const favs: Favorites = this.favoritesService.findAll();
     const artists: Artist[] = favs.artists.map(
       (id: string): Artist => this.artistsService.findOne(id),
@@ -49,13 +48,11 @@ export class FavoritesController {
     };
   }
 
-  @Post('*:id')
+  @Post(':type/:id')
   @HttpCode(201)
   async create(@Param() params): Promise<void> {
-    console.debug(params, 'params');
-    const [itemType, itemId] = params[0].split('/');
-    console.debug(itemType, 'itemType');
-    console.debug(itemId, 'itemId');
+    const itemType = params.type;
+    const itemId = params.id;
     if (!isUUID(itemId)) {
       throw new HttpException('ID is not UUID', HttpStatus.BAD_REQUEST);
     }
@@ -79,6 +76,7 @@ export class FavoritesController {
     }
     if (itemType === 'album') {
       const album = this.albumsService.findOne(itemId);
+      console.debug(itemId, album, 'itemId album');
       if (!album) {
         throw new HttpException(
           'Album does not exist',
@@ -89,16 +87,46 @@ export class FavoritesController {
     this.favoritesService.add(itemId, itemType);
   }
 
-  @Delete(':id')
+  @Delete(':type/:id')
   @HttpCode(204)
   async remove(@Param() params): Promise<void> {
-    const [itemType, itemId] = params[0].split('/');
+    const itemType = params.type;
+    const itemId = params.id;
     if (!isUUID(itemId)) {
       throw new HttpException('ID is not UUID', HttpStatus.BAD_REQUEST);
     }
 
     if (!this.favoritesService.isFavorite(itemId, itemType)) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+
+    if (itemType === 'track') {
+      const track = this.tracksService.findOne(itemId);
+      if (!track) {
+        throw new HttpException(
+          'Track does not exist',
+          HttpStatus.UNPROCESSABLE_ENTITY,
+        );
+      }
+    }
+    if (itemType === 'artist') {
+      const artist = this.artistsService.findOne(itemId);
+      if (!artist) {
+        throw new HttpException(
+          'Artist does not exist',
+          HttpStatus.UNPROCESSABLE_ENTITY,
+        );
+      }
+    }
+    if (itemType === 'album') {
+      const album = this.albumsService.findOne(itemId);
+      console.debug(itemId, album, 'itemId album');
+      if (!album) {
+        throw new HttpException(
+          'Album does not exist',
+          HttpStatus.UNPROCESSABLE_ENTITY,
+        );
+      }
     }
 
     this.favoritesService.remove(itemId, itemType);

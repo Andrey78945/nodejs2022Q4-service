@@ -14,12 +14,14 @@ import { Track, CreateTrackDto } from './models/tracks.entity';
 import { TracksService } from './tracks.service';
 import { isUUID } from 'class-validator';
 import { ArtistsService } from '../artists/artists.service';
+import { FavoritesService } from '../favorites/favorites.service';
 
 @Controller('track')
 export class TracksController {
   constructor(
     private tracksService: TracksService,
     private artistsService: ArtistsService,
+    private favoritesService: FavoritesService,
   ) {}
 
   @Get()
@@ -105,6 +107,10 @@ export class TracksController {
     const track = this.tracksService.remove(id);
     if (!track) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+    const favs = this.favoritesService.findAll();
+    if (favs) {
+      favs.tracks = favs.tracks.filter((id) => id !== track.id);
     }
     return track;
   }

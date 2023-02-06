@@ -14,12 +14,14 @@ import { Artist, CreateArtistDto } from './models/artists.entity';
 import { ArtistsService } from './artists.service';
 import { isUUID } from 'class-validator';
 import { TracksService } from '../tracks/tracks.service';
+import { FavoritesService } from '../favorites/favorites.service';
 
 @Controller('artist')
 export class ArtistsController {
   constructor(
     private artistsService: ArtistsService,
     private trackService: TracksService,
+    private favoritesService: FavoritesService,
   ) {}
 
   @Get()
@@ -113,6 +115,10 @@ export class ArtistsController {
         });
       }
     });
+    const favs = this.favoritesService.findAll();
+    if (favs) {
+      favs.artists = favs.artists.filter((id) => id !== artist.id);
+    }
     return artist;
   }
 }

@@ -1,4 +1,4 @@
-export interface Track {
+export class Track {
   id: string; // uuid v4
   name: string;
   artistId: string | null;

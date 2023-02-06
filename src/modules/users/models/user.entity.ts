@@ -1,4 +1,4 @@
-export interface User {
+export class User {
   id: string; // uuid v4
   login: string;
   password: string;
@@ -9,7 +9,7 @@ export interface User {
 
 export type CreateUserDto = Pick<User, 'login' | 'password'>;
 
-export interface UpdatePasswordDto {
+export class UpdatePasswordDto {
   oldPassword: string;
   newPassword: string;
 }

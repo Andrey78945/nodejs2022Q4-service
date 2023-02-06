@@ -15,7 +15,10 @@ export class FavoritesService {
 
   add(id: string, itemType: string): void {
     if (itemType === 'artist') {
+      console.log(id, 'artist id');
+      console.log(this.favs.artists, 'this.favs.artists before');
       this.favs.artists.push(id);
+      console.log(this.favs.artists, 'this.favs.artists after');
     }
     if (itemType === 'album') {
       this.favs.albums.push(id);

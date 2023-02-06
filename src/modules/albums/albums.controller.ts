@@ -15,6 +15,7 @@ import { AlbumsService } from './albums.service';
 import { isUUID } from 'class-validator';
 import { ArtistsService } from '../artists/artists.service';
 import { TracksService } from '../tracks/tracks.service';
+import { FavoritesService } from '../favorites/favorites.service';
 
 @Controller('album')
 export class AlbumsController {
@@ -22,6 +23,7 @@ export class AlbumsController {
     private albumsService: AlbumsService,
     private artistsServise: ArtistsService,
     private trackService: TracksService,
+    private favoritesService: FavoritesService,
   ) {}
 
   @Get()
@@ -113,6 +115,10 @@ export class AlbumsController {
         });
       }
     });
+    const favs = this.favoritesService.findAll();
+    if (favs) {
+      favs.albums = favs.albums.filter((id) => id !== album.id);
+    }
     return album;
   }
 }
