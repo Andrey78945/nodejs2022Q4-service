@@ -78,7 +78,7 @@ export class TracksController {
     if (!track) {
       throw new HttpException('Track not found', HttpStatus.NOT_FOUND);
     }
-    console.log(updateTrackDto, 'updateTrackDto');
+
     if (updateTrackDto.artistId) {
       const artist = this.artistsService.findOne(updateTrackDto.artistId);
       if (!artist)

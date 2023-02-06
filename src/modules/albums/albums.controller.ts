@@ -48,7 +48,6 @@ export class AlbumsController {
   @Post()
   @HttpCode(201)
   async create(@Body() createAlbumDto: CreateAlbumDto): Promise<Album> {
-    //  console.log(createAlbumDto.name, 'type', typeof createAlbumDto.name);
     if (
       createAlbumDto.name === undefined ||
       createAlbumDto.name?.length === 0 ||

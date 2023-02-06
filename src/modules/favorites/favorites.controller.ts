@@ -1,5 +1,4 @@
 import {
-  Body,
   Controller,
   Delete,
   Get,
@@ -76,7 +75,6 @@ export class FavoritesController {
     }
     if (itemType === 'album') {
       const album = this.albumsService.findOne(itemId);
-      console.debug(itemId, album, 'itemId album');
       if (!album) {
         throw new HttpException(
           'Album does not exist',
@@ -120,7 +118,7 @@ export class FavoritesController {
     }
     if (itemType === 'album') {
       const album = this.albumsService.findOne(itemId);
-      console.debug(itemId, album, 'itemId album');
+
       if (!album) {
         throw new HttpException(
           'Album does not exist',
